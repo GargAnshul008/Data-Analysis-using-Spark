@@ -5,6 +5,7 @@ Analyzing data on local computer and Dumbo Cluster (powered by NYU) using Spark
 
 For this assignment, you will edit the '<b>responses.txt</b>' file, answering several questions listed
 out below. Please make sure to include the correct output along with your response.
+NOTE: "tracks.csv" cannot be uploaded due to its huge size, a sample of the file has been uploaded though. 
 
 
 ## 1. Getting started with pyspark
