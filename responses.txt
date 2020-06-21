@@ -1,0 +1,240 @@
+Please enter your spark code as a response to each question listed below. Remember to provide your output as well.
+
+
+Question 1: 
+How would you express the following computation using SQL instead of the object interface: sailors.filter(sailors.age > 30).select(sailors.sname)
+
+Response:
+#write spark code here
+
+res1 = spark.sql('SELECT sname FROM sailors WHERE age > 30')
++-------+
+|  sname|
++-------+
+|dusting|
+| brutus|
+| lubber|
+|  rusty|
+|  zorba|
+|    bob|
++-------+
+
+
+
+
+Question 2: How would you express the following using the object interface instead of SQL: spark.sql('SELECT * from reserves WHERE sid != 22')
+
+Response:
+#write spark code here
+res2=reserves.filter(reserves.sid!=22)
++---+----------+---+
+|bid|      date|sid|
++---+----------+---+
+|102|2018-11-10| 31|
+|103| 2018-11-6| 31|
+|104|2018-11-12| 31|
+|101|  2018-9-5| 64|
+|102|  2018-9-8| 64|
+|103|  2018-9-8| 74|
++---+----------+---+
+
+
+
+
+
+
+
+Question 3: Using SQL and (multiple) inner joins, in a single query, how many distinct boats did each sailor reserve? The resulting DataFrame should include the sailor's id, name, and the count of distinct boats. (Hint: you may need to use first(...) aggregation function on some columns.) Provide both your query and the resulting DataFrame in your response to this question.
+
+Response:
+#write spark code here
+
+res3=spark.sql('SELECT sailors.sid,sailors.sname,count(boats.bid) from sailors  inner join reserves on sailors.sid=reserves.sid inner join boats on boats.bid=reserves.bid  group by sailors.sid,sailors.sname')
++---+-------+----------+
+|sid|  sname|count(bid)|
++---+-------+----------+
+| 64|horatio|         2|
+| 22|dusting|         4|
+| 31| lubber|         3|
+| 74|horatio|         1|
++---+-------+----------+
+
+
+
+Question 4: Repeating the analysis from Lab2, implement a query using Spark which finds for each artist ID, the maximum track year, average track duration, and number of terms applied to the artist. What are the results for the ten artists with the longest average track durations? Include both your query code and resulting DataFrame in your response.
+
+Response:
+#write spark code here
+res4=spark.sql('Select artist_term.artistID,max(tracks.year),avg(tracks.duration),count(artist_term.term) from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.artistID order by avg(tracks.duration) DESC  LIMIT 10')
++------------------+---------+-----------------+-----------+
+|          artistID|max(year)|    avg(duration)|count(term)|
++------------------+---------+-----------------+-----------+
+|ARIAXFE11F50C50923|        0|3026.572509765625|          1|
+|ARIV4271187B9B824F|        0|3025.175048828125|         16|
+|ARBNOH41187FB5B059|        0|3024.613525390625|          7|
+|ARBTWFL122988F01AF|        0| 3022.28857421875|          1|
+|ARYDSAU1187FB39228|        0| 3007.47705078125|          4|
+|ARUV9R01187FB3A240|        0|  3006.5888671875|         19|
+|ARX2AL51187B98979E|        0|3000.842041015625|          9|
+|ARBLRK21187B98CF16|        0|2996.035400390625|         14|
+|ARKZAWC1187FB554BE|        0|2987.754638671875|          3|
+|ARGOPFA11F4C84679F|        0|2973.256591796875|          8|
++------------------+---------+-----------------+-----------+
+
+
+
+
+
+
+Question 5: Create a query that finds the number of distinct tracks associated (through artistID) to each term. Modify this query to return only the top 10 most popular terms, and again for the bottom 10. Include each query in your response. What are the 10 most and least popular terms?
+
+Response:
+#write spark code here
+
+Part 1)
+res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term')
++-----------------------+--------------------+
+|count(DISTINCT trackID)|                term|
++-----------------------+--------------------+
+|                   2930|  adult contemporary|
+|                  22102|   singer-songwriter|
+|                   5483|             melodic|
+|                    752|               anime|
+|                   1850|             lyrical|
+|                    335|        german metal|
+|                   1851|              poetry|
+|                     18|electronica latin...|
+|                    126|         indie music|
+|                     26|            oc remix|
+|                     59|          medwaybeat|
+|                     24|        haldern 2008|
+|                    189| gramusels bluesrock|
+|                    108|   traditional metal|
+|                     26|            priority|
+|                     88|      french electro|
+|                      6|   polish electronic|
+|                     58|          indigenous|
+|                     53|     swedish hip hop|
+|                      9| swedish black metal|
++-----------------------+--------------------+
+only showing top 20 rows
+Part 2)
+res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term order by count(DISTINCT tracks.trackID) DESC LIMIT 10')
++-----------------------+----------------+
+|count(DISTINCT trackID)|            term|
++-----------------------+----------------+
+|                  86469|            rock|
+|                  69971|      electronic|
+|                  68682|             pop|
+|                  44282|alternative rock|
+|                  42888|         hip hop|
+|                  42358|            jazz|
+|                  40870|   united states|
+|                  37361|     alternative|
+|                  35589|        pop rock|
+|                  34873|           indie|
++-----------------------+----------------+
+Part 3)
+ res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term order by count(DISTINCT tracks.trackID) LIMIT 10')
++-----------------------+--------------------+
+|count(DISTINCT trackID)|                term|
++-----------------------+--------------------+
+|                      1| nordisk vikingarock|
+|                      1|      tribal ambient|
+|                      1|          hot sahara|
+|                      1| psychedelic country|
+|                      1|shel talmy produc...|
+|                      1|       fonal records|
+|                      1|    psychedelic funk|
+|                      1|progressive melod...|
+|                      1|contemporary classic|
+|                      1|    stonersludgecore|
++-----------------------+--------------------+
+
+
+
+
+
+Question 6: Repeat questions 4 and 5, but now using the large versions of the CSV files stored at hdfs:/user/bm106/pub/artist_term_large.csv and hdfs:/user/bm106/pub/tracks_large.csv. Report the resulting DataFrames in your response. Did you have to change any of your analysis code, and if so, what?
+
+Response:
+#write spark code here
+Response:
+#write spark code here
+Question 4:
+res4=spark.sql('Select artist_term.artistID,max(tracks.year),avg(tracks.duration),count(artist_term.term) from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.artistID order by avg(tracks.duration) DESC  LIMIT 10')
++------------------+---------+-----------------+-----------+
+|          artistID|max(year)|    avg(duration)|count(term)|
++------------------+---------+-----------------+-----------+
+|ARI4ARP1187FB50847|        0| 3032.50244140625|         13|
+|ARKIGPF1187B98BD79|        0|3030.908935546875|         15|
+|ARG62WR1187FB461BC|        0|3030.177490234375|          9|
+|ARNHB3M1187B98B512|        0|3029.080322265625|         12|
+|ARMDCV21187B9B13AD|        0|3027.721923828125|         17|
+|ARIAXFE11F50C50923|        0|3026.572509765625|          2|
+|ARIV4271187B9B824F|        0|3025.175048828125|         36|
+|AR8XMK11187B9AF8C7|     2005|3024.665771484375|         24|
+|ARBNOH41187FB5B059|        0|3024.613525390625|         11|
+|ARBTWFL122988F01AF|        0| 3022.28857421875|          2|
++------------------+---------+-----------------+-----------+
+
+Question 5:
+Part 1)
+>>> res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term')
+>>> res5.show()                                                                                                         term.artistID=tracks.artistID group by artist_term.term')
++-----------------------+-------------------+
+|count(DISTINCT trackID)|               term|
++-----------------------+-------------------+
+|                  36747|            melodic|
+|                 152831|  singer-songwriter|
+|                     73|           dub rock|
+|                    150|persian traditional|
+|                  12408|             poetry|
+|                   4132|              anime|
+|                  12894|            lyrical|
+|                  21956| adult contemporary|
+|                    408|         medwaybeat|
+|                     62|      ambient metal|
+|                   1396|gramusels bluesrock|
+|                    782|        indie music|
+|                   2227|       german metal|
+|                    213|swedish black metal|
+|                    405|     french electro|
++-----------------------+-------------------+
+showing only the top 15 rows
+
+Part 2
+>>> res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term order by count(DISTINCT tracks.trackID) DESC LIMIT 10')
+>>> res5.show()
++-----------------------+----------------+
+|count(DISTINCT trackID)|            term|
++-----------------------+----------------+
+|                 610884|            rock|
+|                 484208|      electronic|
+|                 474863|             pop|
+|                 320506|alternative rock|
+|                 301223|            jazz|
+|                 295101|         hip hop|
+|                 287360|   united states|
+|                 262573|     alternative|
+|                 248072|        pop rock|
+|                 242083|           indie|
++-----------------------+----------------+
+
+Part 3 
+>>> res5=spark.sql('Select count(DISTINCT tracks.trackID),artist_term.term from artist_term inner join tracks on artist_term.artistID=tracks.artistID group by artist_term.term order by count(DISTINCT tracks.trackID) LIMIT 10')
+>>> res5.show()
++-----------------------+--------------------+
+|count(DISTINCT trackID)|                term|
++-----------------------+--------------------+
+|                      1|       serbian metal|
+|                      1|      korean artists|
+|                      1|     slovak pop rock|
+|                      1|      hardcore beats|
+|                      1|            bandolim|
+|                      1|symphonic folk metal|
+|                      1|        cabaret punk|
+|                      1|  massachusetts rock|
+|                      1|       houston scene|
+|                      1|         girlysounds|
++-----------------------+--------------------+
